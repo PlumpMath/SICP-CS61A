@@ -361,8 +361,6 @@ def move_stack(n, start, end):
         move_stack(n-1, 6 - start - end, end)
 
 
-
-
 ###################
 # Extra Questions #
 ###################
@@ -384,29 +382,33 @@ def Y_tester():
     >>> tmp(2)
     2
     """
-    return Y(lambda f: lambda n: 1 if n==0 else n * f()(n-1))
-
-
+    return Y(lambda f: lambda n: 1 if n == 0 else n * f()(n-1))
 
 #实际上是这样的
-def YY(fx):
-    def lambda_function():#一个没有参数的lambda
-        return YY(fx)
-    return fx(lambda_function)
+
+def YY(lambda_in_tester):
+    def lambda_YY():#一个没有参数的lambda
+        return YY(lambda_in_tester)
+    return lambda_in_tester(lambda_YY)
 
 def YY_tester():
-    
-    def lambda_function(f):
+    def lambda_tester(lambda_in_YY):
         def actual(n):
             if n == 1:
                 return 1
             else:
-                return n * f()(n-1)
+                return n * lambda_in_YY()(n-1)
         return actual
-    return YY(lambda_function)
+    return YY(lambda_tester)
+
+#print(YY_tester()(3))
+
+#TODO:
+################但是实在是理解不了##################
+###############-只是感觉是两个函数在相互调用而已-###
 
 
-################但是实在是理解不了#################
+
 
 
 
@@ -415,58 +417,78 @@ def zero(f):
 
 def successor(n):
     return lambda f: lambda x: f(n(f)(x))
+
 def one(f):
-    """Church numeral 1: same as successor(zero)"""
-    "*** YOUR CODE HERE ***"
+    return lambda x: f(x)
 
 def two(f):
-    """Church numeral 2: same as successor(successor(zero))"""
-    "*** YOUR CODE HERE ***"
-
-three = successor(two)
+    return lambda x: f(f(x))
 
 def church_to_int(n):
     """Convert the Church numeral n to a Python integer.
-
     >>> church_to_int(zero)
     0
     >>> church_to_int(one)
     1
     >>> church_to_int(two)
     2
-    >>> church_to_int(three)
-    3
     """
-    "*** YOUR CODE HERE ***"
+
+    return n(lambda x: x+1)(0)
+
+
+
+
+# def one_():
+#     return successor(zero)
+# print(church_to_int(one_()))
+
+
+## test ##
+one = successor(zero)
+two = successor(one)
+three = successor(two)
+#print(church_to_int(three))
+
+
+
+def int_to_church(i):
+    if i==0:
+        return zero
+    else:
+        return successor(int_to_church(i-1))
+
+#print(church_to_int(int_to_church(3)))
+
 
 def add_church(m, n):
     """Return the Church numeral for m + n, for Church numerals m and n.
-
+    >>> three = successor(two)
     >>> church_to_int(add_church(two, three))
     5
     """
-    "*** YOUR CODE HERE ***"
+    return lambda f: lambda x: n(f)(m(f)(x))
+
 
 def mul_church(m, n):
     """Return the Church numeral for m * n, for Church numerals m and n.
-
+    >>> three = successor(two)
     >>> four = successor(three)
     >>> church_to_int(mul_church(two, three))
     6
     >>> church_to_int(mul_church(three, four))
     12
     """
-    "*** YOUR CODE HERE ***"
+    return lambda f: lambda x: n(m(f))(x)
 
 def pow_church(m, n):
-    """Return the Church numeral m ** n, for Church numerals m and n.
-
+    """Return the Church numeral for m ** n, for Church numerals m and n.
+    >>> three = successor(two)
     >>> church_to_int(pow_church(two, three))
     8
     >>> church_to_int(pow_church(three, two))
     9
     """
-    "*** YOUR CODE HERE ***"
+    return n(m)
+    
 
-fx = YY_tester()
-print(fx(3))
