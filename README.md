@@ -1,1 +1,13 @@
-###[CS61A 2016 Spring](https://github.com/zhanglanqing/CS61A)
+###[Online course CS61A 2016 Spring](http://cs61a.org/)
+
+----
+
+### Not complete
+
+- homework 
+
+6, 7, 9
+
+- project
+
+Ant
