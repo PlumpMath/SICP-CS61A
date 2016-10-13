@@ -44,7 +44,7 @@ print(b)
 
 #注意一般的含有yeild的函数类型是什么是GeneratorType，这种类型是含有iter定义的，而且返回自身因此可以for中出现
 def test_gen():
-    k =1
+    k = 1
     while k < 3:
         yield k
         k += 1

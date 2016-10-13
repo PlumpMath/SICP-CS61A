@@ -2,7 +2,16 @@
 
 # Q1
 
-def permutations(lst):
+def nexter(a):
+    try:
+        i = [k for k in range(-2, -len(a) - 1, -1) if a[k] < a[k + 1]][0]
+        j = [k for k in range(-1, i, -1) if a[i] < a[k]][0]
+        return a[:i] + [a[j]] + a[-1:j:-1] + [a[i]] + a[j - 1:i:-1]
+    except:
+        return None
+
+
+def permutations(lstr):
     """Generates all permutations of sequence LST.  Each permutation is a
     list of the elements in LST in a different order.
 
@@ -15,10 +24,20 @@ def permutations(lst):
     >>> sorted(permutations("ab"))
     [['a', 'b'], ['b', 'a']]
     """
-    if not lst:
-        yield []
-        return
-    "*** YOUR CODE HERE ***"
+    lst = []
+    for item in lstr:
+        lst.append(item)
+    k = lst
+    while k:
+        yield k
+        k = nexter(k)
+
+
+
+
+
+
+
 
 
 # Streams
@@ -83,7 +102,8 @@ def scale_stream(s, k):
     >>> stream_to_list(scale_stream(Stream.empty, 10))
     []
     """
-    "*** YOUR CODE HERE ***"
+    return map_stream(lambda x: x*k, s)
+
 
 # Q3
 
@@ -109,11 +129,14 @@ def efficient_map_stream(fn, s):
     >>> stream_to_list(efficient_map_stream(lambda x: x*x, make_integer_stream(1)))
     [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
     """
-    "*** YOUR CODE HERE ***"
+    if s is Stream.empty:
+        return s
+    return Stream(fn(s.first), lambda: efficient_map_stream(fn, s.rest))
+
 
 # Q4
 
-def make_stream_of_streams():
+def make_stream_of_streams(x=1):
     """
     >>> stream_of_streams = make_stream_of_streams()
     >>> stream_of_streams
@@ -123,7 +146,12 @@ def make_stream_of_streams():
     >>> stream_to_list(stream_of_streams, 4)
     [Stream(1, <...>), Stream(2, <...>), Stream(3, <...>), Stream(4, <...>)]
     """
-    "*** YOUR CODE HERE ***"
+    def helper():
+        return make_stream_of_streams(x+1)
+    return Stream(make_integer_stream(x), helper)
+
+
+
 
 # Q5
 
@@ -144,7 +172,16 @@ def merge(s0, s1):
         return s0
 
     e0, e1 = s0.first, s1.first
-    "*** YOUR CODE HERE ***"
+    if e0 == e1:
+        fir = Stream(e1, lambda: merge(s0.rest, s1.rest))
+        return fir
+    elif e0 < e1:
+        fir = Stream(e0, lambda: merge(s0.rest, s1))
+        return fir
+    elif e0 > e1:
+        fir = Stream(e1, lambda: merge(s0, s1.rest))
+        return fir
+
 
 def make_s():
     """Return a stream over all positive integers with only factors 2, 3, & 5.
@@ -153,7 +190,8 @@ def make_s():
     >>> stream_to_list(s, 20)
     [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36]
     """
+    # this solution is very clever.
     def rest():
-        "*** YOUR CODE HERE ***"
+        return merge(scale_stream(s, 2), merge(scale_stream(s, 3), scale_stream(s, 5)))
     s = Stream(1, rest)
     return s
