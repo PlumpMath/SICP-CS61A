@@ -54,6 +54,16 @@ class Link:
         else:
             return self.rest[i-1]
 
+    def get_ith_link(self, n):
+        i = 0
+        ret = self
+        while i < n:
+            ret = ret.rest
+            i += 1
+        return ret
+
+
+
 class Tree:
     def __init__(self, label, children=()):
         self.label = label
@@ -95,9 +105,25 @@ def nearest_two(x):
     2.0
 
     """
-    power_of_two = 1.0
-    "*** YOUR CODE HERE ***"
-    return power_of_two
+    if x == 1:
+        return 1.0
+    elif x > 1:
+        i = 1
+        while 2**i < x:
+            i = i + 1
+        if abs(2**i - x) <= abs(2**(i-1) - x):
+            return 2**i*1.0
+        else:
+            return 2**(i-1)*1.0
+    else:
+        i = -1
+        while 2**i > x:
+            i = i - 1
+        if abs(2**i - x) < abs(2**(i+1) - x):
+            return 2**i*1.0
+        else:
+            return 2**(i+1)*1.0
+
 
 # Q2
 
@@ -113,6 +139,9 @@ def repeated(f, n):
         return x
     return h
 
+
+
+
 def smooth(f, dx):
     """Returns the smoothed version of f, g where
 
@@ -122,16 +151,24 @@ def smooth(f, dx):
     >>> round(smooth(square, 1)(0), 3)
     0.667
     """
-    "*** YOUR CODE HERE ***"
+    return lambda x: (f(x) + f(x-dx) + f(x+dx)) / 3
+
 
 def n_fold_smooth(f, dx, n):
     """Returns the n-fold smoothed version of f
-
+    # 我觉的这道题目有问题啊，他让用lambda根本就是误导好吗？，这里根本就是迭代啊
     >>> square = lambda x: x ** 2
     >>> round(n_fold_smooth(square, 1, 3)(0), 3)
     2.0
     """
-    "*** YOUR CODE HERE ***"
+    ret = smooth(f, dx)
+    i = 1
+    while i < n:
+        ret = smooth(ret, dx)
+        i = i + 1
+    return ret
+
+
 
 # Q3
 
@@ -147,7 +184,19 @@ def near_golden(perimeter):
     19
 
     """
-    "*** YOUR CODE HERE ***"
+    n = perimeter // 2
+    i = 1
+    recminer = -1
+    minabs = 100000
+    while i < n // 2:
+        miner = i
+        maxer = n - i
+        if abs(maxer/miner - 1 - miner/maxer) < minabs:
+            recminer = miner
+            minabs = abs(maxer/miner - 1 - miner/maxer)
+        i = i + 1
+    return recminer
+
 
 # Q4
 
@@ -168,9 +217,24 @@ def reaches_circularity(G, v0):
     >>> is_circular(G)
     False
     """
-    "*** YOUR CODE HERE ***"
+    size = len(G)
+    # 采用了一种比较低效的方式，就是检测一个节点是不是在环上，其实这里也可以采用迭代的方式
+    def is_path_to_cycle(v1, num):
+        if num == size:
+            return False
+        for w in G[v1]:
+            if v0 == w:
+                return True
+            if is_path_to_cycle(w, num + 1):
+                return True
+        return False
+    return is_path_to_cycle(v0, 0)
+
+
 
 # Q5
+
+
 
 def intersection(xs, ys):
     """
@@ -200,7 +264,23 @@ def intersection(xs, ys):
     >>> intersection(a, c).first # intersection begins at a
     5
     """
-    "*** YOUR CODE HERE ***"
+    x_len = len(xs)
+    y_len = len(ys)
+    if x_len == y_len:
+        pass
+    elif x_len > y_len:
+        for _ in range(0, x_len - y_len):
+            xs = xs.rest
+    elif y_len > x_len:
+        for _ in range(0, y_len - x_len):
+            ys = ys.rest
+
+    while True:
+        if xs is ys:
+            return xs
+        xs = xs.rest
+        ys = ys.rest
+
 
 # Q6
 
@@ -218,8 +298,9 @@ def deck(suits, ranks):
     >>> deck(['S', 'C'], [])
     []
     """
-    "*** YOUR CODE HERE ***"
-    return ______
+
+    return [[x, y] for x in suits for y in ranks]
+
 
 # Q7
 
@@ -232,8 +313,17 @@ def riffle(deck):
     >>> riffle(range(20))
     [0, 10, 1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17, 8, 18, 9, 19]
     """
-    "*** YOUR CODE HERE ***"
-    return _______
+    origin = list(deck)
+    ret = []
+    for i in range(len(origin)//2):
+        ret.append(origin[i])
+        ret.append(origin[i + len(origin)//2])
+    return ret
+
+
+
+
+
 
 # Q8
 
@@ -261,12 +351,43 @@ def make_advanced_counter_maker():
     >>> tom_counter('count')
     3
     >>> jon_counter('global-count')
-    3
+    3python3 ok -q partial_tree
     >>> jon_counter('global-reset')
     >>> tom_counter('global-count')
     1
     """
-    "*** YOUR CODE HERE ***"
+    global_counter = 0
+    def make_counter():
+
+        cnt = 0
+        def do_action(message):
+
+            def f_add():
+                nonlocal cnt
+                cnt += 1
+                return cnt
+            def f_reset():
+                nonlocal cnt
+                cnt = 0
+            if message == 'count':
+                return f_add()
+            elif message == 'reset':
+                return f_reset()
+            elif message == 'global-count':
+                nonlocal global_counter
+                global_counter += 1
+                return global_counter
+            elif message == 'global-reset':
+                nonlocal global_counter
+                global_counter = 0
+
+        return do_action
+
+    return make_counter
+
+
+
+
 
 # Q9
 
@@ -298,11 +419,16 @@ def partial_tree(s, n):
     if n == 1:
         return (Tree(s.first), s.rest)
     elif n == 2:
-        return (Tree(s.first, [Tree(s.rest.first)]), s.rest.rest)
+        return (Tree(s.first, [Tree(s.rest.first)]), s.res3t.rest)
     else:
         left_size = (n-1)//2
         right_size = n - left_size - 1
-        "*** YOUR CODE HERE ***"
+
+        left_branch = partial_tree(s, left_size)[0]
+        root = s[left_size]
+        right_branch = partial_tree(s.get_ith_link(left_size + 1), right_size)[0]
+        return (Tree(root, [left_branch, right_branch]), s.get_ith_link(n))
+
 
 def sequence_to_tree(s):
     """Return a balanced tree containing the elements of sorted Link s.
