@@ -1,13 +1,14 @@
-###[Online course CS61A 2016 Spring](http://cs61a.org/)
+###[Online course CS61A 2016 Spring](www-inst.eecs.berkeley.edu/~cs61a/sp16/)
 
 ----
 
-### Not complete
+### Index
 
-- homework 
+- chapter0x: Notes from the Text
+- hw: Homework
+- lab: Exercises
+- hog,maps,ants: TinyProjects
+- final: Examination
 
-6, 7, 9
 
-- project
 
-Ant
